@@ -1,4 +1,6 @@
 #include <vector>
+using std::vector;
+
 enum MooreType {
   MOORE3 = 3,
   MOORE7 = 7,
@@ -7,13 +9,15 @@ enum MooreType {
 
 template<MooreType MT>
 class MooreGraph {
-  std::vector<int> graph_data;
-  void* device_data;
-  
+  //Empty adjacency list
+  vector<vector<int> > graph_data(MT * MT + 1, vector<int>());
   ~MooreGraph();
  public:
   MooreGraph();
+  
   MooreGraph bestChild();
   MooreGraph bestChildren(int n);
   MooreGraph bestOfSample(int n);
+  int heuristic_score();
 }; 
+

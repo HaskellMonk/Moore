@@ -12,12 +12,13 @@ class MooreGraph {
   //Empty adjacency list
   vector<vector<int> > graph_data(MT * MT + 1, vector<int>());
   ~MooreGraph();
+  int groupNumber(int vertex_number);
+  MooreGraph(vector<vector<int> > graph);
  public:
   MooreGraph();
-  
-  MooreGraph bestChild();
-  MooreGraph bestChildren(int n);
-  MooreGraph bestOfSample(int n);
+
+  MooreGraph randomChild();
   int heuristic_score();
+  
 }; 
 

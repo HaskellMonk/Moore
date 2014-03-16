@@ -3,6 +3,11 @@
 #include "MooreGraph.h"
 
 template <MooreType MT>
+MooreGraph::MoreGraph(vector<vector<int> > vect){
+  graph_data = vect;
+}
+
+template <MooreType MT>
 MooreGraph::MooreGraph(){
   //Starting at vertex 0 has a link to vertices 1 to 57
   for (int i = 0; i < MT; i++) {
@@ -46,19 +51,74 @@ MooreGraph::~MooreGraph(){
 }
 
 template <MooreType MT>
-std::vector<MooreGraph> bestChild(){
+int MooreGraph::groupNumber(int vertex_number){
+  return (vertex_number - 1 - MT) % (MT - 1);
 }
 
 template <MooreType MT>
-std::vector<MooreGraph> bestChildren(int n){
-  
-}
+MooreGraph randomChild(){
+  //Copy to new graph
+  vector<vector<int> > graph_data2(graph_data.size(), vector<int>(MT));
+  for (int i = 0; i < graph_data.size(); i++){
+    std::copy(graph_data[i].begin(), 
+	      graph_data[i].end(),
+	      graph_data2[i].begin());
+  }
+  //Randomization scheme for edges
+  //There is a bijective mapping of vertices in group i 
+  //to vertices in group j. 
+  //We pick two vertices u and v in a group i and then pick a group
+  //j. Edges (u,x) and (v,y) will exist where x and y are in group j.
+  //Delete edges (u,x) and (v,y). Then add edges (u,y) and (v,x).
 
-template <MooreType MT>
-MooreGraph bestOfSample(int n){
+  //First pick group i
   std::default_random_engine generator;
-  std::uniform_int_distribution<int> distribution(1, MT * (MT - 1));
+  int group_i = std::uniform_int_distribution<int>(0, MT - 1)(generator);
   
+  //Now pick two vertices in group i
+  int vertex_1 = std::uniform_int_distribution<int>(0, MT-2)(generator);
+  int vertex_2 = std::uniform_int_distribution<int>(0, MT-3)(generator);
+  
+  //Now Pick group j
+  int group_j = std::uniform_int_distribution<int>(0, MT - 2)(generator);
+  
+  if (vertex_1 <= vertex_2)
+    vertex_2 += 1;
+
+  vector<int>::iterator x;
+  vector<int>::iterator y;
+  //Find the vertices x and y
+  x = std::find_if(graph_data2[vertex_1].begin(),
+		   graph_data2[vertex_1].end(),
+		   [](int vertex) {
+		     return groupNumber(vertex) == group_j;
+		   });
+  y = std::find_if(graph_data2[vertex_2].begin(),
+		   graph_data2[vertex_2].end(),
+		   [](int vertex) {
+		     return groupNumber(vertex) == group_j;
+		   });
+  vector<int>::iterator u;
+  vector<int>::iterator v;
+  u = std::find_if(graph_data2[*x].begin(),
+		   graph_data2[*x].end(),
+		   [](int vertex) {
+		     return vertex1 == vertex;
+		   });
+  v = std::find_if(graph_data2[*y].begin(),
+		   graph_data2[*y].end(),
+		   [](int vertex) {
+		     return vertex2 == vertex;
+		   });
+  //u->y and v->x
+  int tmp = *x;
+  *x = *y;
+  *y = tmp;
+  //y->u and x->v  
+  *tmp = *v;
+  *u = *v;
+  *v = tmp;
+  return MooreGraph(graph_data2);
 }
 
 template<MooreType MT>

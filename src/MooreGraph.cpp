@@ -2,12 +2,12 @@
 #include <cmath>
 #include "MooreGraph.h"
 
-template <MooreType MT>
+template <int MT>
 MooreGraph::MoreGraph(vector<vector<int> > vect){
   graph_data = vect;
 }
 
-template <MooreType MT>
+template <int MT>
 MooreGraph::MooreGraph(){
   //Starting at vertex 0 has a link to vertices 1 to 57
   for (int i = 0; i < MT; i++) {
@@ -46,24 +46,35 @@ MooreGraph::MooreGraph(){
   }
 }
 
-template <MooreType MT>
+template <int MT>
 MooreGraph::~MooreGraph(){
 }
 
-template <MooreType MT>
+template <int MT>
 int MooreGraph::groupNumber(int vertex_number){
-  return (vertex_number - 1 - MT) % (MT - 1);
+  if (vertex_number < (MT + 1))
+    return -1;
+  else
+    return (vertex_number - 1 - MT) % (MT - 1);
 }
 
-template <MooreType MT>
-MooreGraph randomChild(){
-  //Copy to new graph
-  vector<vector<int> > graph_data2(graph_data.size(), vector<int>(MT));
-  for (int i = 0; i < graph_data.size(); i++){
-    std::copy(graph_data[i].begin(), 
-	      graph_data[i].end(),
-	      graph_data2[i].begin());
+template<int MT>
+MooreGraph& MooreGraph::operator=(MooreGraph &rhs){
+  if (&rhs == this)
+    return *this;
+  else {
+    for (int i = 0; i < graph_data.size(); i++){
+      std::copy(graph_data[i].begin(), 
+		graph_data[i].end(),
+		rhs[i].graph_data.begin());
+    }
   }
+  return rhs:
+}
+
+template <int MT>
+void MooreGraph::apply_delta(tuple<int, int, int, int> &delta){
+  //Copy to new graph
   //Randomization scheme for edges
   //There is a bijective mapping of vertices in group i 
   //to vertices in group j. 
@@ -76,8 +87,8 @@ MooreGraph randomChild(){
   int group_i = std::uniform_int_distribution<int>(0, MT - 1)(generator);
   
   //Now pick two vertices in group i
-  int vertex_1 = std::uniform_int_distribution<int>(0, MT-2)(generator);
-  int vertex_2 = std::uniform_int_distribution<int>(0, MT-3)(generator);
+  int vertex_1 = std::uniform_int_distribution<int>(0, MT - 2)(generator);
+  int vertex_2 = std::uniform_int_distribution<int>(0, MT - 3)(generator);
   
   //Now Pick group j
   int group_j = std::uniform_int_distribution<int>(0, MT - 2)(generator);
@@ -85,43 +96,9 @@ MooreGraph randomChild(){
   if (vertex_1 <= vertex_2)
     vertex_2 += 1;
 
-  vector<int>::iterator x;
-  vector<int>::iterator y;
-  //Find the vertices x and y
-  x = std::find_if(graph_data2[vertex_1].begin(),
-		   graph_data2[vertex_1].end(),
-		   [](int vertex) {
-		     return groupNumber(vertex) == group_j;
-		   });
-  y = std::find_if(graph_data2[vertex_2].begin(),
-		   graph_data2[vertex_2].end(),
-		   [](int vertex) {
-		     return groupNumber(vertex) == group_j;
-		   });
-  vector<int>::iterator u;
-  vector<int>::iterator v;
-  u = std::find_if(graph_data2[*x].begin(),
-		   graph_data2[*x].end(),
-		   [](int vertex) {
-		     return vertex1 == vertex;
-		   });
-  v = std::find_if(graph_data2[*y].begin(),
-		   graph_data2[*y].end(),
-		   [](int vertex) {
-		     return vertex2 == vertex;
-		   });
-  //u->y and v->x
-  int tmp = *x;
-  *x = *y;
-  *y = tmp;
-  //y->u and x->v  
-  *tmp = *v;
-  *u = *v;
-  *v = tmp;
-  return MooreGraph(graph_data2);
 }
 
-template<MooreType MT>
+template<int MT>
 int heuristicScore(){
   vector<int> lookup_table(MT * MT + 1, 0);
 

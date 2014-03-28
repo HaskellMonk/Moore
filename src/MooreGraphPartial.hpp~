@@ -1,0 +1,4 @@
+template<int MT>
+class MooreGraphPartial {
+  
+}
